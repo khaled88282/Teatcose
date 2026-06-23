@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PixelMind AI — Image Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --surface:   #12121a;
+      --border:    #1e1e2e;
+      --accent:    #7c6af7;
+      --accent2:   #c084fc;
+      --glow:      rgba(124,106,247,0.25);
+      --text:      #e2e2f0;
+      --muted:     #6b6b88;
+      --error:     #f87171;
+      --success:   #34d399;
+      --radius:    14px;
+      --font-sans: 'Space Grotesk', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      max-width: 860px;
+      padding: 48px 24px 0;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124,106,247,.12);
+      border: 1px solid rgba(124,106,247,.3);
+      color: var(--accent2);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 20px;
+    }
+    .badge::before { content:"●"; font-size:8px; color: var(--success); }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent2) 60%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 400;
+      max-width: 460px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 860px;
+      padding: 0 24px 80px;
+    }
+    .input-box {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color .2s;
+    }
+    .input-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      resize: none;
+      min-height: 72px;
+      line-height: 1.6;
+    }
+    textarea::placeholder { color: var(--muted); }
+
+    .btn-generate {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-family: var(--font-sans);
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .2s, transform .15s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 140px;
+      justify-content: center;
+    }
+    .btn-generate:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-generate:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── OPTIONS ROW ── */
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .opt-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 140px;
+    }
+    .opt-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    select {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: .85rem;
+      padding: 8px 10px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
+    }
+    select:focus { border-color: var(--accent); }
+
+    /* ── NEGATIVE PROMPT ── */
+    .neg-row {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .neg-input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      font-family: var(--font-sans);
+      font-size: .85rem;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+    .neg-input:focus { border-color: var(--accent); color: var(--text); }
+
+    /* ── STATUS ── */
+    #status {
+      margin-top: 24px;
+      min-height: 28px;
+      text-align: center;
+    }
+    .status-text {
+      font-family: var(--font-mono);
+      font-size: .8rem;
+      letter-spacing: .04em;
+      padding: 6px 16px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .status-text.loading { color: var(--accent2); background: rgba(192,132,252,.1); }
+    .status-text.error   { color: var(--error);   background: rgba(248,113,113,.1); }
+    .status-text.success { color: var(--success);  background: rgba(52,211,153,.1); }
+
+    /* ── RESULT ── */
+    #result {
+      margin-top: 28px;
+      text-align: center;
+    }
+    #result-img {
+      max-width: 100%;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: 0 0 40px rgba(124,106,247,.2);
+      display: none;
+    }
+    .img-actions {
+      display: none;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: var(--font-sans);
+      font-size: .85rem;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-action:hover { border-color: var(--accent); background: rgba(124,106,247,.08); }
+
+    /* ── LOADER DOTS ── */
+    .dots::after {
+      content: '';
+      animation: dots 1.4s infinite;
+    }
+    @keyframes dots {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+    }
+
+    /* ── SPINNER in button ── */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 24px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-align: center;
+      letter-spacing: .05em;
+    }
+    footer span { color: var(--accent); }
+
+    /* ── ERROR BOX ── */
+    .error-box {
+      background: rgba(248,113,113,.08);
+      border: 1.5px solid rgba(248,113,113,.3);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-top: 20px;
+      display: none;
+    }
+    .error-box h3 { color: var(--error); font-size: .9rem; margin-bottom: 8px; }
+    .error-box p  { color: #c0a0a0; font-size: .82rem; line-height: 1.6; }
+    .error-box code {
+      font-family: var(--font-mono);
+      background: rgba(248,113,113,.12);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: .78rem;
+    }
+
+    @media (max-width: 520px) {
+      .input-row { flex-direction: column; align-items: stretch; }
+      .btn-generate { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Powered by Cloudflare Workers AI</div>
+  <h1>PixelMind AI</h1>
+  <p class="subtitle">Turn your imagination into stunning images — free, fast, no signup needed.</p>
+</header>
+
+<main class="card">
+  <div class="input-box">
+    <div class="input-row">
+      <textarea id="prompt" placeholder="Describe the image you want to create…&#10;e.g. a mystical forest at golden hour, ultra-detailed, cinematic lighting" rows="3"></textarea>
+      <button class="btn-generate" id="btn" onclick="generate()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-text">✦ Generate</span>
+      </button>
+    </div>
+
+    <div class="options-row">
+      <div class="opt-group">
+        <span class="opt-label">Style</span>
+        <select id="style">
+          <option value="">None</option>
+          <option value="photorealistic, 8k, ultra-detailed">Photorealistic</option>
+          <option value="digital art, concept art, artstation trending">Digital Art</option>
+          <option value="anime style, studio ghibli, vibrant">Anime</option>
+          <option value="oil painting, impressionist, textured brush">Oil Painting</option>
+          <option value="cinematic, dramatic lighting, movie still">Cinematic</option>
+          <option value="watercolor, soft, ethereal">Watercolor</option>
+          <option value="pixel art, 8-bit, retro game">Pixel Art</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <span class="opt-label">Aspect</span>
+        <select id="aspect">
+          <option value="">Square (default)</option>
+          <option value="--ar 16:9">Landscape 16:9</option>
+          <option value="--ar 9:16">Portrait 9:16</option>
+          <option value="--ar 4:3">Classic 4:3</option>
+        </select>
+      </div>
+      <div class="opt-group">
+        <span class="opt-label">Quality Boost</span>
+        <select id="quality">
+          <option value="">Standard</option>
+          <option value="masterpiece, best quality, highly detailed">High Quality</option>
+          <option value="masterpiece, ultra high resolution, award winning photography">Ultra Quality</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="neg-row">
+      <span class="opt-label">Negative Prompt (what to avoid)</span>
+      <input class="neg-input" id="negative" type="text" placeholder="blurry, low quality, watermark, ugly, deformed…"/>
+    </div>
+  </div>
+
+  <div id="status"></div>
+  <div class="error-box" id="error-box">
+    <h3>⚠ Error Details</h3>
+    <p id="error-details"></p>
+  </div>
+
+  <div id="result">
+    <img id="result-img" alt="Generated Image"/>
+    <div class="img-actions" id="img-actions">
+      <a id="download-btn" class="btn-action" download="pixelmind-ai.png">⬇ Download</a>
+      <button class="btn-action" onclick="copyPrompt()">⎘ Copy Prompt</button>
+      <button class="btn-action" onclick="regenerate()">↻ Regenerate</button>
+    </div>
+  </div>
+</main>
+
+<footer>Built with <span>♥</span> · Cloudflare Workers AI · © 2025 PixelMind</footer>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────
+  const API_BASE = "https://dry-frost-2409.historybinr.workers.dev";
+  // Your Cloudflare Worker endpoint. We'll try multiple path patterns.
+  // ────────────────────────────────────────────────────────
+
+  let lastPrompt = "";
+
+  async function generate() {
+    const raw     = document.getElementById("prompt").value.trim();
+    const style   = document.getElementById("style").value;
+    const aspect  = document.getElementById("aspect").value;
+    const quality = document.getElementById("quality").value;
+    const neg     = document.getElementById("negative").value.trim();
+
+    if (!raw) { showStatus("Please enter a prompt first!", "error"); return; }
+
+    // Build full prompt
+    let fullPrompt = raw;
+    if (style)   fullPrompt += `, ${style}`;
+    if (quality) fullPrompt += `, ${quality}`;
+    if (aspect)  fullPrompt += ` ${aspect}`;
+    lastPrompt = raw;
+
+    setLoading(true);
+    hideError();
+    showStatus("Generating your image<span class='dots'></span>", "loading");
+    document.getElementById("result-img").style.display = "none";
+    document.getElementById("img-actions").style.display = "none";
+
+    try {
+      const img = await tryGenerate(fullPrompt, neg);
+      displayImage(img);
+      showStatus("✓ Image generated successfully!", "success");
+    } catch (err) {
+      showStatus("Generation failed. See details below.", "error");
+      showError(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function tryGenerate(prompt, negative) {
+    // ── Strategy 1: GET with ?prompt= (common Cloudflare AI worker pattern)
+    const getUrl = `${API_BASE}?prompt=${encodeURIComponent(prompt)}${negative ? "&negative_prompt=" + encodeURIComponent(negative) : ""}`;
+
+    let res = await fetch(getUrl);
+    if (res.ok && res.headers.get("content-type")?.includes("image")) {
+      return URL.createObjectURL(await res.blob());
+    }
+
+    // ── Strategy 2: POST JSON
+    res = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, negative_prompt: negative || undefined })
+    });
+    if (res.ok && res.headers.get("content-type")?.includes("image")) {
+      return URL.createObjectURL(await res.blob());
+    }
+
+    // ── Strategy 3: POST to /generate
+    res = await fetch(`${API_BASE}/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt, negative_prompt: negative || undefined })
+    });
+    if (res.ok && res.headers.get("content-type")?.includes("image")) {
+      return URL.createObjectURL(await res.blob());
+    }
+
+    // ── Strategy 4: check if JSON response with base64
+    if (res.ok) {
+      const json = await res.json().catch(() => null);
+      if (json?.image) return `data:image/png;base64,${json.image}`;
+      if (json?.url)   return json.url;
+    }
+
+    // ── All failed — gather info for error box
+    const statusCode = res.status;
+    let body = "";
+    try { body = await res.text(); } catch (_) {}
+    throw new Error(
+      `Server returned <code>HTTP ${statusCode}</code>.<br><br>` +
+      `<strong>What this might mean:</strong><br>` +
+      explainError(statusCode, body)
+    );
+  }
+
+  function explainError(status, body) {
+    if (status === 404)
+      return `Your Worker is running but the route was not found. Make sure your Worker handles <code>GET /?prompt=...</code> or <code>POST /</code> requests. Check your <code>worker.js</code> fetch handler.`;
+    if (status === 401 || status === 403)
+      return `Authentication failed. Your Cloudflare AI binding or API token may be missing or expired. Check <code>wrangler.toml</code> AI binding.`;
+    if (status === 429)
+      return `Rate limit hit. Cloudflare Workers AI has free-tier limits. Wait a moment and try again.`;
+    if (status === 500)
+      return `Internal server error in your Worker. Check Cloudflare dashboard → Workers → your worker → Logs for the exact error. Common causes: wrong model name, missing AI binding.`;
+    if (status === 0 || body.includes("CORS"))
+      return `CORS error. Your Worker must return the header <code>Access-Control-Allow-Origin: *</code> and handle <code>OPTIONS</code> preflight requests.`;
+    if (body) return `Response body: <code>${body.slice(0, 200)}</code>`;
+    return `Unknown error (${status}). Open DevTools → Network tab for full details.`;
+  }
+
+  function displayImage(src) {
+    const img = document.getElementById("result-img");
+    img.src = src;
+    img.style.display = "block";
+    img.scrollIntoView({ behavior: "smooth", block: "center" });
+    const dl = document.getElementById("download-btn");
+    dl.href = src;
+    document.getElementById("img-actions").style.display = "flex";
+  }
+
+  function setLoading(on) {
+    const btn     = document.getElementById("btn");
+    const spinner = document.getElementById("spinner");
+    const text    = document.getElementById("btn-text");
+    btn.disabled         = on;
+    spinner.style.display = on ? "block" : "none";
+    text.textContent     = on ? "Generating…" : "✦ Generate";
+  }
+
+  function showStatus(msg, type) {
+    document.getElementById("status").innerHTML =
+      `<span class="status-text ${type}">${msg}</span>`;
+  }
+
+  function showError(err) {
+    const box = document.getElementById("error-box");
+    document.getElementById("error-details").innerHTML = err.message;
+    box.style.display = "block";
+  }
+
+  function hideError() {
+    document.getElementById("error-box").style.display = "none";
+  }
+
+  function copyPrompt() {
+    navigator.clipboard.writeText(document.getElementById("prompt").value)
+      .then(() => showStatus("Prompt copied!", "success"))
+      .catch(() => showStatus("Copy failed", "error"));
+  }
+
+  function regenerate() { generate(); }
+
+  // Enter key to generate (Shift+Enter = newline)
+  document.getElementById("prompt").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); generate(); }
+  });
+</script>
+</body>
+</html>
