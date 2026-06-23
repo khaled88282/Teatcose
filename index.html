@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>AI Image Generator</h2>
+    <input type="text" id="prompt" placeholder="কি ছবি চান?">
+    <button onclick="gen()">ছবি তৈরি করুন</button>
+    <br><br>
+    <img id="img" style="max-width:300px">
+
+    <script>
+        async function gen() {
+            const prompt = document.getElementById('prompt').value;
+            const res = await fetch('https://dry-frost-2409.historybinr.workers.dev/', {
+                method: 'POST',
+                body: JSON.stringify({ prompt })
+            });
+            const blob = await res.blob();
+            document.getElementById('img').src = URL.createObjectURL(blob);
+        }
+    </script>
+</body>
+</html>
