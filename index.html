@@ -232,7 +232,7 @@
     .ad-inner { border-radius:12px; overflow:hidden; border:1px solid var(--border); }
 
     /* card */
-    .card { position:relative; z-index:10; width:100%; max-width:860px; padding:0 24px 100px; }
+    .card { position:relative; z-index:10; width:100%; max-width:860px; padding:0 24px 60px; }
 
     .input-box {
       background: var(--glass);
@@ -367,6 +367,54 @@
     .dots::after { content:''; animation:dots 1.4s infinite; }
     @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
 
+    /* ---- content / article sections (added for AdSense publisher-content compliance) ---- */
+    .content-section {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 860px;
+      padding: 0 24px 56px;
+    }
+    .content-section h2 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      letter-spacing: .03em;
+      color: var(--text);
+      margin-bottom: 18px;
+    }
+    .content-section h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 22px 0 8px;
+    }
+    .content-section p {
+      font-size: .93rem;
+      color: var(--text2);
+      line-height: 1.8;
+      margin-bottom: 14px;
+      font-weight: 300;
+    }
+    .content-section ol, .content-section ul {
+      margin: 0 0 14px 20px;
+      color: var(--text2);
+      font-size: .93rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+    .content-section li { margin-bottom: 6px; }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      font-size: .95rem; font-weight: 600; color: var(--text);
+      margin-bottom: 8px;
+    }
+    .faq-a {
+      font-size: .89rem; color: var(--text2); line-height: 1.75; font-weight: 300;
+    }
+
     footer {
       position:relative; z-index:10; width:100%;
       padding:28px 32px 52px;
@@ -420,17 +468,6 @@
   <p class="hero-sub">AI IMAGE GENERATOR</p>
   <p class="hero-desc">Turn your imagination into stunning visuals — free, fast, unlimited. No signup. No restrictions. Just create.</p>
 </header>
-
-<div class="ad-wrap">
-  <div class="ad-inner">
-    <ins class="adsbygoogle" style="display:block"
-         data-ad-client="ca-pub-5315790962991937"
-         data-ad-slot="5425627310"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </div>
-</div>
 
 <main class="card">
   <div class="input-box">
@@ -500,6 +537,75 @@
     <div class="feat"><div class="feat-icon">∞</div><div class="feat-title">Unlimited Free</div><div class="feat-desc">Generate as many images as you want, forever free</div></div>
   </div>
 </main>
+
+<!-- ============ AD (moved below the tool + content so it never sits on a "content-less" screen) ============ -->
+<div class="ad-wrap">
+  <div class="ad-inner">
+    <ins class="adsbygoogle" style="display:block"
+         data-ad-client="ca-pub-5315790962991937"
+         data-ad-slot="5425627310"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</div>
+
+<!-- ============ PUBLISHER CONTENT (added to satisfy AdSense "publisher content" / "low value content" policy) ============ -->
+<section class="content-section" id="about">
+  <h2>About PixelMind AI</h2>
+  <p>PixelMind AI is a free, browser-based text-to-image generator built on top of Cloudflare Workers AI. It was created for artists, designers, marketers, students, and hobbyists who want to turn a written idea into a visual image without paying for a subscription, creating an account, or waiting in a queue behind other users. Every image is generated on Cloudflare's global edge network, which keeps generation times short even when the tool is used from anywhere in the world.</p>
+  <p>Unlike many AI image tools that limit free users to a handful of generations per day or hide the best models behind a paywall, PixelMind AI does not enforce a generation cap. You can describe as many scenes, characters, objects, or abstract concepts as you like, and each one is rendered fresh based on your exact wording. The tool does not require an email address, a phone number, or a login of any kind — you simply open the page, type a prompt, and generate.</p>
+
+  <h3>How the generator works</h3>
+  <ol>
+    <li><strong>Write a prompt.</strong> Describe the subject, setting, mood, and any specific details you want included — the more descriptive, the better the result.</li>
+    <li><strong>Choose a style (optional).</strong> Pick from photorealistic, digital art, anime, oil painting, cinematic, watercolor, or pixel art to steer the overall look.</li>
+    <li><strong>Set an aspect ratio (optional).</strong> Square works well for social media avatars, while 16:9 suits banners and wallpapers, and 9:16 suits mobile wallpapers or Reels/Shorts covers.</li>
+    <li><strong>Add a negative prompt (optional).</strong> List anything you want the model to avoid, such as blurry details, extra limbs, or watermarks.</li>
+    <li><strong>Generate and download.</strong> The finished image appears inline and can be downloaded directly to your device in a single click.</li>
+  </ol>
+
+  <h3>Tips for writing better prompts</h3>
+  <ul>
+    <li>Be specific about lighting — "golden hour," "neon-lit," and "soft studio lighting" each produce very different moods.</li>
+    <li>Mention the camera or art medium you're imagining, e.g. "35mm film photo" or "watercolor painting on textured paper."</li>
+    <li>Describe composition when it matters: "close-up portrait," "wide establishing shot," or "top-down flat lay."</li>
+    <li>Keep negative prompts short and targeted rather than listing dozens of unrelated terms.</li>
+    <li>If a result isn't quite right, tweak one part of the prompt at a time rather than rewriting it completely — this makes it easier to see what changed the outcome.</li>
+  </ul>
+
+  <h3>Common use cases</h3>
+  <p>People use PixelMind AI to create concept art for personal projects, mockup illustrations for presentations, unique visuals for blog posts and social media, character designs for tabletop games, and quick visual references before commissioning a human artist. Because there is no login and no watermark, images generated here can be downloaded and used immediately in whatever workflow you're already working in.</p>
+</section>
+
+<section class="content-section" id="faq">
+  <h2>Frequently Asked Questions</h2>
+
+  <div class="faq-item">
+    <div class="faq-q">Is PixelMind AI really free to use?</div>
+    <div class="faq-a">Yes. There is no subscription, no credit system, and no account requirement. The tool runs on Cloudflare Workers AI, which keeps hosting costs low enough to offer unlimited free generations.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Do I need to sign up or log in?</div>
+    <div class="faq-a">No. You can start generating images the moment the page loads. Nothing is saved to an account because there is no account system.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Are my prompts or images stored?</div>
+    <div class="faq-a">Prompts are sent to the generation engine only to produce your image and are not permanently stored or shared. Generated images live in your browser session and are not uploaded to a public gallery.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Can I use the generated images commercially?</div>
+    <div class="faq-a">You are free to download and use the images you generate. As with any AI-generated content, you should review the rights and restrictions that apply in your jurisdiction and use case before commercial use.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Why did my generation fail?</div>
+    <div class="faq-a">Occasional failures can happen due to high demand on the underlying AI service or a temporary network issue. Waiting a few seconds and generating again usually resolves it.</div>
+  </div>
+</section>
 
 <footer>
   <div class="footer-l">PIXELMIND AI · Built with <span>♥</span> · © 2025 · Cloudflare Workers AI</div>
@@ -627,4 +733,4 @@ function regenerate(){generate();}
 document.getElementById("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();generate();}});
 </script>
 </body>
-  </html>
+      </html>
